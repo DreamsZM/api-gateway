@@ -4,10 +4,26 @@ spring:
   cloud:
     config:
       discovery:
-        service-id: config
         enabled: true
+        service-id: config
       profile: dev
 eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
+management:
+  security:
+    enabled: false
+
+zuul:
+  routes:
+#    product: /myProduct/**
+    myProduct:
+      path: /myProduct/**
+      serviceId: product
+      sensitiveHeaders:
+
+  ignored-patterns:
+    - /product/product/listForOrder
+#    - /product/product/listForOrder
+#    - /myProduct/product/listForOrder
