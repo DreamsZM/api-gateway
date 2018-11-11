@@ -32,7 +32,7 @@ public class RateLimitFilter extends ZuulFilter {
 
     @Override
     public Object run() throws ZuulException {
-        if (RATE_LIMITER.tryAcquire()){
+        if (!RATE_LIMITER.tryAcquire()){
             throw new RateLimitException();
         }
 

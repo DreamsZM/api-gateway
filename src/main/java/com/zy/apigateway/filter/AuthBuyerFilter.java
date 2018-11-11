@@ -3,10 +3,15 @@ package com.zy.apigateway.filter;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.exception.ZuulException;
+import com.zy.apigateway.constants.RedisConstant;
+import com.zy.apigateway.utils.CookieUtil;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_DECORATION_FILTER_ORDER;
@@ -19,7 +24,11 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
  * 3、实现其方法
  */
 @Component
-public class TokenFilter extends ZuulFilter {
+public class AuthBuyerFilter extends ZuulFilter {
+
+    @Autowired
+    private StringRedisTemplate redisTemplate;
+
     @Override
     public String filterType() {
         return PRE_TYPE;
@@ -32,11 +41,17 @@ public class TokenFilter extends ZuulFilter {
 
     @Override
     public boolean shouldFilter() {
-        return true;
+        RequestContext requestContext = RequestContext.getCurrentContext();
+        HttpServletRequest request = requestContext.getRequest();
+        if ("/order/order/create".equals(request.getRequestURI())){
+            return true;
+        }
+        return false;
     }
 
     /**
      * 过滤器的实现逻辑
+     * 区分卖家和买家
      * @return
      * @throws ZuulException
      */
@@ -45,14 +60,17 @@ public class TokenFilter extends ZuulFilter {
         //获取当前请求的上下文，可以获取request
         RequestContext requestContext = RequestContext.getCurrentContext();
         HttpServletRequest request = requestContext.getRequest();
-        //从参数或cookie、header获取token
-        String token = request.getParameter("token");
-        if (StringUtils.isEmpty(token)){
-//            requestContext.setSendZuulResponse(false);
-//            requestContext.setResponseStatusCode(HttpStatus.UNAUTHORIZED.value());
+        /**
+         * 买家的cookie有openid
+         * 卖家的cookie有token
+         */
+        //检验要请求的uri
+        Cookie cookie = CookieUtil.get(request, "openid");
+        if (cookie == null || StringUtils.isEmpty(cookie.getValue())){
+            requestContext.setSendZuulResponse(false);
+            requestContext.setResponseStatusCode(HttpStatus.UNAUTHORIZED.value());
         }
-        //处理逻辑
-        //通过ZuulResponse响应请求和状态码
+
         return null;
     }
 }

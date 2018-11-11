@@ -1,6 +1,9 @@
 spring:
   application:
     name: gateway
+  redis:
+    host: 192.168.1.141
+    port: 6379
 #  cloud:
 #    config:
 #      discovery:
@@ -25,5 +28,7 @@ zuul:
 
   ignored-patterns:
     - /product/product/listForOrder
+#全部服务忽略敏感头，都可传递cookie
+  sensitive-headers:
 #    - /product/product/listForOrder
 #    - /myProduct/product/listForOrder
