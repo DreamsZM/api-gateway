@@ -8,12 +8,12 @@ import org.springframework.stereotype.Component;
 /**
  * 实现zuul配置的动态更新
  */
-@Component
-public class ZuulConfig {
-
-    @ConfigurationProperties
-    @RefreshScope
-    public ZuulProperties zuulProperties(){
-        return new ZuulProperties;
-    }
-}
+//@Component
+//public class ZuulConfig {
+//
+//    @ConfigurationProperties
+//    @RefreshScope
+//    public ZuulProperties zuulProperties(){
+//        return new ZuulProperties();
+//    }
+//}
